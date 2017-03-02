@@ -64,7 +64,7 @@ class ILSVRCMeta(object):
         :returns: list of (image filename, cls)
         """
         assert name in ['train', 'val', 'test']
-        fname = os.path.join(self.dir, name + '.txt')
+        fname = os.path.join(self.dir, 'ILSVRC2012_img_' + name + '.txt')
         assert os.path.isfile(fname)
         with open(fname) as f:
             ret = []

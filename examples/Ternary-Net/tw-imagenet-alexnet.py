@@ -16,14 +16,19 @@ from tensorpack.tfutils.symbolic_functions import *
 from tensorpack.tfutils.summary import *
 from ternary import tw_ternarize
 
-BATCH_SIZE = 32
+TOTAL_BATCH_SIZE = 128
+BATCH_SIZE = None
 
 class Model(ModelDesc):
+    """ Model description """
+
     def _get_input_vars(self):
+        """ Define model input variables """
         return [InputVar(tf.float32, [None, 224, 224, 3], 'input'),
                 InputVar(tf.int32, [None], 'label') ]
 
     def _build_graph(self, input_vars):
+        """ Build TensorFlow graph """
         image, label = input_vars
         image = image / 255.0
 
@@ -92,6 +97,8 @@ class Model(ModelDesc):
         self.cost = tf.add_n([cost, wd_cost], name='cost')
 
 def get_data(dataset_name):
+    """ Get data generator """
+
     isTrain = dataset_name == 'train'
     ds = dataset.ILSVRC12(args.data, dataset_name, dir_structure='train', shuffle=isTrain)
 
@@ -150,6 +157,8 @@ def get_data(dataset_name):
     return ds
 
 def get_config():
+    """ Get training configuration """
+
     mod = sys.modules['__main__']
     basename = os.path.basename(mod.__file__)
     logdir = os.path.join('train_log',
@@ -188,6 +197,8 @@ def get_config():
     )
 
 def run_image(model, sess_init, inputs):
+    """ Run inference on image """
+
     pred_config = PredictConfig(
         model=model,
         session_init=sess_init,
@@ -231,7 +242,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', help='the physical ids of GPUs to use')
     parser.add_argument('--load', help='load a checkpoint, or a npy (given as the pretrained model)')
-    parser.add_argument('--data', help='ILSVRC dataset dir', default='/ssd/dataset/imagenet')
+    parser.add_argument('--data', help='ILSVRC dataset dir', default='/tmp/MLRG/ilsvrc12')
     parser.add_argument('--run', help='run on a list of images with the pretrained model', nargs='*')
     parser.add_argument('--t', type=float, default=0.05)
     args = parser.parse_args()
@@ -243,6 +254,11 @@ if __name__ == '__main__':
         assert args.load.endswith('.npy')
         run_image(Model(), ParamRestore(np.load(args.load, encoding='latin1').item()), args.run)
         sys.exit()
+
+    assert args.gpu is not None, "Need to specify a list of gpu for training!"
+    NR_GPU = len(args.gpu.split(','))
+    BATCH_SIZE = TOTAL_BATCH_SIZE // NR_GPU
+    logger.info("Batch per tower: {}".format(BATCH_SIZE))
 
     config = get_config()
     if args.load:
