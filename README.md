@@ -1,21 +1,51 @@
 # Trained Ternary Quantization (TTQ)
-TensorFlow implementation of paper:
 
-[Trained Ternary Quantization](https://arxiv.org/pdf/1612.01064v1), by Zhu et al.
+This repo is a fork of the [Trained Ternary Quantization](https://arxiv.org/pdf/1612.01064v1) (Zhu et al.) [TensorFlow implementation](https://github.com/czhu95/ternarynet), which is used as a demonstration for training large deep learning models on the SHARCNET copper cluster.
 
-This implementation is based on [tensorpack](https://github.com/ppwwyyxx/tensorpack). Thanks to this framework which made this implementation extremely easy.
+This implementation is based on the [tensorpack](https://github.com/ppwwyyxx/tensorpack) neural network toolbox.  We add tensorpack as a `git subtree` that can be updated independent of the main project.  Please note that this code is based on an old revision of tensorpack (December 6, 2016):
 
+```
+git subtree add --prefix tools/tensorpack/ https://github.com/ppwwyyxx/tensorpack.git 1f02847da50ff1214e692e42061977196b25b2b1
+```
+
+## Copper Installation:
+
++ Sign up for [Compute Canada](https://www.computecanada.ca/) account
++ Login to copper:
+```
+ssh copper.sharcnet.ca
+```
++ Build precompiled [TensorFlow v0.9 with CUDA 7.5 and cuDNN v4](https://www.sharcnet.ca/help/index.php/Tensorflow#Testing_Tensorflow_0.9_with_CUDA7.5_.2B_cuDNNv4_on_Copper)
++ Install tensorpack requirements:
+```
+pip install --user -r requirements.txt
+pip install --user -r opt-requirements.txt
+```
++ Clone this repo and setup copper environment:
+```
+git clone https://github.com/laceyg/ternarynet
+cd ternarynet
+source scripts/setup_COP.sh
+```
+
+## Dependencies:
+
++ Python 2 or 3
++ TensorFlow >= 0.8
++ Python bindings for OpenCV
++ Tensorpack [requirements](https://github.com/ppwwyyxx/tensorpack/blob/master/requirements.txt)
+
+
+## Usage
+
++ To train AlexNet on ImageNet inside interactive job:
+```
+cd examples/Ternary-Net/
+python ./tw-imagenet-alexnet.py --gpu 0,1,2,3 --data /tmp/MLRG/ilsvrc12 [--t threshold]
+```
+**Note: We used 4 GPUs for training**
 
 ## Experimental Results:
-
-#### Error Rate of Finetuned TTQ ResNet models on CIFAR-10:
-
-| Network       | Full Precision | TTQ         |
-| ------------- | ------------- | ----------- |
-| ResNet-20     | 8.23          | 8.87        |
-| ResNet-32     | 7.67          | 7.63        |
-| ResNet-44     | 7.18          | 7.02        |
-| ResNet-56     | 6.80          | 6.44        |
 
 #### Error Rate of TTQ AlexNet model on ImageNet from scratch:
 
@@ -23,60 +53,3 @@ This implementation is based on [tensorpack](https://github.com/ppwwyyxx/tensorp
 | ------------- | ------------- | ----------- |
 | Top1-error    | 42.8          | 42.5        |
 | Top5-error    | 19.7          | 20.3        |
-
-## Dependencies:
-
-+ Python 2 or 3
-+ TensorFlow >= 0.8
-+ Python bindings for OpenCV
-+ other requirements:
-```
-pip install --user -r requirements.txt
-pip install --user -r opt-requirements.txt (some optional dependencies, you can install later if needed)
-```
-+ Use [tcmalloc](http://goog-perftools.sourceforge.net/doc/tcmalloc.html) whenever possible
-+ Enable `import tensorpack`:
-```
-export PYTHONPATH=$PYTHONPATH:`readlink -f path/to/tensorpack`
-```
-
-## Usage
-
-+ To train ResNet on CIFAR10 with fixed threshold:
-```
-cd examples/Ternary-Net/
-python ./tw-cifar10-resnet.py --gpu 0,1 [--load MODEL_PATH] [--t threshold] [--n NSIZE]
-```
-**Note: We used 2 GPUs for training and pretrained model can be obtained using /examples/ResNet/**
-
-+ To train ResNet on CIFAR10 with fixed sparsity:
-```
-cd examples/Ternary-Net/
-python ./p-cifar10-resnet.py --gpu 0,1 [--load MODEL_PATH] [—p sparsity] [--n NSIZE]
-```
-+ To train AlexNet on ImageNet with fiexed threshold:
-```
-cd examples/Ternary-Net/
-python ./tw-imagenet-alexnet.py --gpu 0,1,2,3 --data IMAGENET_PATH [--t threshold]
-```
-**Note: We used 4 GPUs for training**
-
-## Logs
-Some training logs can be found [here](./examples/Ternary-Net/train_log).
-
-## Support
-
-Please use [github issues](https://github.com/czhu95/ternarynet/issues) for any issues related to the code.
-Send email to the authors for general questions related to the paper.
-
-## Citation
-
-If you use our code or models in your research, please cite:
-```
-@article{zhu2016trained,
-  title={Trained Ternary Quantization},
-  author={Zhu, Chenzhuo and Han, Song and Mao, Huizi and Dally, William J},
-  journal={arXiv preprint arXiv:1612.01064},
-  year={2016}
-}
-```
