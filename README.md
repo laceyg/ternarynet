@@ -47,7 +47,7 @@ python ./tw-imagenet-alexnet.py --gpu 0,1,2,3 --data /tmp/MLRG/ilsvrc12 [--t thr
 
 ## Experimental Results:
 
-#### Error Rate of TTQ AlexNet model on ImageNet from scratch:
+#### Error Rate of TTQ AlexNet model on ImageNet trained from scratch:
 
 | Network       | Full Precision | TTQ         |
 | ------------- | ------------- | ----------- |
